@@ -16,22 +16,42 @@
 void * client_session_thread(void * arg)
 {
 	int 	SD;
-	char 	request[2048];
+	char* 	request;
     char* delim = " ";
     char* token;
 
 	SD = *(int *)arg;
 	free (arg);
+    flag end = False;
+    bank_account* account;
 
-	while ( read( SD, request, sizeof(request) ) > 0 )
+	while ( read( SD, request, sizeof(request) ) > 0 && end == True )
 	{
 		printf( "server receives input:  %s\n", request );
         token = strtok(request, delim);
+        if (strcmp(token, "open") == 0) {
+                token = strtok(NULL, delim);
+                account = open(token);
+                if (account == NULL) {
+                        //what do we do if account can't be created?
+                }
+        }
 
 	}
     pthread_exit(0);
 }
-//I assume this will be the format of our bank account struct although do we need a flag variable as well?
+
+//need to do mutex lock around bank here and put this bank account into the bank array
+bank_account* open(char* acc_name) {
+        if (strlen(acc_name) > 100) {
+                return NULL;
+        }
+        bank_account* account;
+        account -> account_name = acc_name;
+        account -> balance = 0;
+        account -> in_session = True;
+        return account;
+}
 
 int
 claim_port( const char * port )
