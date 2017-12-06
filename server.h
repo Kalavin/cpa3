@@ -9,11 +9,13 @@ typedef struct bank_account {
         float balance;
         flag in_session;
 } bank_account;
+bank_account bank[20];
+int num_accounts = 0;
 
 
 //function declarations
 void* client_session_thread(void* arg);
-bank_account* open(char* acc_name);
+int open(char* acc_name); //returns int representing index in bank
 int claim_port(const char* port);
 int main(int argc, char** argv);
 
