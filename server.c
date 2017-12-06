@@ -16,8 +16,8 @@
 void * client_session_thread(void * arg)
 {
 	int 	SD;
-	char* 	request;
-    char* delim = " ";
+	char* 	request = "";
+    char* delim = " \0\n";
     char* token;
 
 	SD = *(int *)arg;
@@ -31,7 +31,7 @@ void * client_session_thread(void * arg)
         token = strtok(request, delim);
         if (strcmp(token, "open") == 0) {
                 token = strtok(NULL, delim);
-                account = open(token);
+                account = open(token); //distinguish accounts by index in bank array
                 if (account == -1) { //too many accounts
                         char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
                         write(SD, errmess, sizeof(errmess));
@@ -53,13 +53,14 @@ int open(char* acc_name) { //returns -1 for too many accounts, -2 for name too l
         } else if (num_accounts >= 20) {
                 return -1;
         }
+        //account lock starts here
         int account = num_accounts;
         num_accounts += 1;
         //bank lock can end here
         strcpy(bank[account].account_name, acc_name);
-        //bank[account].account_name = acc_name;
         bank[account].balance = 0;
         bank[account].in_session = True;
+        //account lock ends here
         return account;
 }
 
