@@ -23,7 +23,7 @@ void * client_session_thread(void * arg)
 	SD = *(int *)arg;
 	free (arg);
     flag end = False;
-    bank_account* account;
+    int account;
 
 	while ( read( SD, request, sizeof(request) ) > 0 && end == True )
 	{
@@ -32,8 +32,12 @@ void * client_session_thread(void * arg)
         if (strcmp(token, "open") == 0) {
                 token = strtok(NULL, delim);
                 account = open(token);
-                if (account == NULL) {
-                        //what do we do if account can't be created?
+                if (account == -1) { //too many accounts
+                        char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
+                        write(SD, errmess, sizeof(errmess));
+                } else if (account == -2) { //account name too long
+                        char errmess[] = "Error: account name too long. Must be less than 100 characters.";
+                        write(SD, errmess, sizeof(errmess));
                 }
         }
 
@@ -41,15 +45,21 @@ void * client_session_thread(void * arg)
     pthread_exit(0);
 }
 
-//need to do mutex lock around bank here and put this bank account into the bank array
-bank_account* open(char* acc_name) {
+//need to do mutex lock around bank here
+int open(char* acc_name) { //returns -1 for too many accounts, -2 for name too long
+        //bank lock should start here
         if (strlen(acc_name) > 100) {
-                return NULL;
+                return -2;
+        } else if (num_accounts >= 20) {
+                return -1;
         }
-        bank_account* account;
-        account -> account_name = acc_name;
-        account -> balance = 0;
-        account -> in_session = True;
+        int account = num_accounts;
+        num_accounts += 1;
+        //bank lock can end here
+        strcpy(bank[account].account_name, acc_name);
+        //bank[account].account_name = acc_name;
+        bank[account].balance = 0;
+        bank[account].in_session = True;
         return account;
 }
 
