@@ -18,6 +18,7 @@ int num_accounts = 0;
 //function declarations
 void* client_session_thread(void* arg);
 int open(char* acc_name); //returns int representing index in bank
+int start(char* acc_name); //returns int representing index in bank
 int claim_port(const char* port);
 int main(int argc, char** argv);
 

@@ -30,51 +30,78 @@ void * client_session_thread(void * arg)
 		printf( "server receives input:  %s\n", request );
         token = strtok(request, delim);
         if (strcmp(token, "open") == 0) {
-                token = strtok(NULL, delim);
-                accountid = open(token); //distinguish accounts by index in bank array
-                if (accountid == -1) { //too many accounts
-                        char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
-                        write(SD, errmess, sizeof(errmess));
-                } else if (accountid == -2) { //account name too long
-                        char errmess[] = "Error: account name too long. Must be less than 100 characters.";
-                        write(SD, errmess, sizeof(errmess));
-                }
+            token = strtok(NULL, delim);
+            accountid = open(token); //distinguish accounts by index in bank array
+            if (accountid == -1) { //too many accounts
+                char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
+                write(SD, errmess, sizeof(errmess));
+            } else if (accountid == -2) { //account name too long
+                char errmess[] = "Error: account name too long. Must be less than 100 characters.";
+                write(SD, errmess, sizeof(errmess));
+            } else if (accountid == -3) {
+                char errmess[] = "Error: account with that name already exists.";
+                write(SD, errmess, sizeof(errmess));
+            }
+        } else if (strcmp(token, "start") == 0) {
+            token = strtok(NULL, delim);
+            accountid = start(token);
+            if (accountid == -1) {
+                char errmess[] = "Error: no account with that name exists.";
+                write(SD, errmess, sizeof(errmess));
+            }
         }
-
 	}
     pthread_exit(0);
 }
 
-//need to do mutex lock around bank here
-int open(char* acc_name) { //returns -1 for too many accounts, -2 for name too long
-        pthread_mutex_lock(&bank_lock);
+int open(char* acc_name) { //returns -1 for too many accounts, -2 for name too long, -3 for account with that name already exists
+    pthread_mutex_lock(&bank_lock);
 
-        if (strlen(acc_name) > 100) {
-                return -2;
-        } else if (num_accounts >= 20) {
-                return -1;
+    if (strlen(acc_name) > 100) {
+        return -2;
+    } else if (num_accounts >= 20) {
+        return -1;
+    }
+    //check if an account with that name already exists
+    int i;
+    for (i = 0; i < num_accounts; i++) {
+        if (strcmp(bank[i].account_name, acc_name) == 0) {
+           return -3;
+        } 
+    }
+    pthread_mutex_lock(&account_locks[num_accounts]);
+
+    int accountid = num_accounts;
+    num_accounts += 1;
+
+    pthread_mutex_unlock(&bank_lock);
+
+    //update all the information
+    strcpy(bank[accountid].account_name, acc_name);
+    bank[accountid].balance = 0;
+    bank[accountid].in_session = True;
+
+    pthread_mutex_unlock(&account_locks[accountid]);
+
+    return accountid;
+}
+
+int start(char* acc_name) {
+    pthread_mutex_lock(&bank_lock);
+    int i;
+    int accountid = -1;
+    for (i = 0; i < num_accounts; i++) {
+        pthread_mutex_lock(&account_locks[i]);
+        if (strcmp(bank[i].account_name, acc_name) == 0) {
+            accountid = i;
+            bank[accountid].in_session = True;
+            break;
         }
-        //check if an account with that name already exists
-        int i;
-        for (i = 0; i < num_accounts; i++) {
-            if (strcmp(bank[i].account_name, acc_name) == 0) {
-                return -3;
-            } 
-        }
-        pthread_mutex_lock(&account_locks[num_accounts]);
-
-        int accountid = num_accounts;
-        num_accounts += 1;
-
-        pthread_mutex_unlock(&bank_lock);
-
-        strcpy(bank[accountid].account_name, acc_name);
-        bank[accountid].balance = 0;
-        bank[accountid].in_session = True;
-
-        pthread_mutex_unlock(&account_locks[accountid]);
-
-        return accountid;
+        pthread_mutex_unlock(&account_locks[i]);
+    }
+    pthread_mutex_unlock(&bank_lock);
+    pthread_mutex_unlock(&account_locks[i]);
+    return accountid;
 }
 
 int
