@@ -10,6 +10,8 @@ typedef struct bank_account {
         flag in_session;
 } bank_account;
 bank_account bank[20];
+pthread_mutex_t bank_lock;
+pthread_mutex_t account_locks[20];
 int num_accounts = 0;
 
 
