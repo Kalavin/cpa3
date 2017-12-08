@@ -19,8 +19,8 @@ int num_accounts = 0;
 void* client_session_thread(void* arg);
 int open(char* acc_name); //returns int representing index in bank
 int start(char* acc_name); //returns int representing index in bank
-void deposit(int accountid, char* amount_str);
-void withdraw(int accountid, char* amount_str);
+float deposit(int accountid, char* amount_str); //returns the amount deposited as a float
+float withdraw(int accountid, char* amount_str); //returns the amount deposited as a float
 float balance(int accountid);
 void finish(int* accountid);
 int claim_port(const char* port);

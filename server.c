@@ -32,40 +32,50 @@ void * client_session_thread(void * arg)
         if (strcmp(token, "open") == 0) {
             token = strtok(NULL, delim);
             if (accountid >= 0 && accountid <= 19) {
-                char errmess[] = "Error: you can not open an account while in a session.";
+                char errmess[] = "Error: you can not open an account while in a session.\n";
                 write(SD, errmess, sizeof(errmess));
                 continue;
             }
             accountid = open(token); //distinguish accounts by index in bank array
             if (accountid == -1) { //too many accounts
-                char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
+                char errmess[] = "Error: not enough room in bank. \"exit\" to quit\n";
                 write(SD, errmess, sizeof(errmess));
             } else if (accountid == -2) { //account name too long
-                char errmess[] = "Error: account name too long. Must be less than 100 characters.";
+                char errmess[] = "Error: account name too long. Must be less than 100 characters.\n";
                 write(SD, errmess, sizeof(errmess));
             } else if (accountid == -3) {
-                char errmess[] = "Error: account with that name already exists.";
+                char errmess[] = "Error: account with that name already exists.\n";
                 write(SD, errmess, sizeof(errmess));
+            } else  {
+                char message[] = "Account successfully opened!\n";
+                write(SD, message, sizeof(message));
             }
         } else if (strcmp(token, "start") == 0) {
             token = strtok(NULL, delim);
             accountid = start(token);
             if (accountid == -1) {
-                char errmess[] = "Error: no account with that name exists.";
+                char errmess[] = "Error: no account with that name exists.\n";
                 write(SD, errmess, sizeof(errmess));
+            } else {
+                char message[] = "Welcome back! Your session has begun successfully.\n";
+                write(SD, message, sizeof(message));
             }
         } else if (strcmp(token, "deposit") == 0) {
             token = strtok(NULL, delim);
             if (accountid >= 0 && accountid <= 19) {
-                deposit(accountid, token);
+                float amount = deposit(accountid, token);
+                char* message = "";
+                write(SD, message, sprintf(message, ">>%f<< deposited successfully.\n", amount));
             } else {
-                char errmess[] = "Error: you are not currently in a session.";
+                char errmess[] = "Error: you are not currently in a session.\n";
                 write(SD, errmess, sizeof(errmess));
             }
         } else if (strcmp(token, "withdraw") == 0) {
             token = strtok(NULL, delim);
             if (accountid >= 0 && accountid <= 19) {
-                withdraw(accountid, token);
+                float amount = withdraw(accountid, token);
+                char* message = "";
+                write(SD, message, sprintf(message, ">>%f<< withdrawn successfully.\n", amount));
             } else {
                 char errmess[] = "Error: you are not currently in a session.";
                 write(SD, errmess, sizeof(errmess));
@@ -74,16 +84,18 @@ void * client_session_thread(void * arg)
             if (accountid >= 0 && accountid <= 19) {
                 float curr_bal = balance(accountid);
                 char* message = "";
-                write(SD, message, sprintf(message, "Your current balance: %f\n", curr_bal));
+                write(SD, message, sprintf(message, "Your current balance is >>%f<<\n", curr_bal));
             } else {
-                char errmess[] = "Error: you are not currently in a session.";
+                char errmess[] = "Error: you are not currently in a session.\n";
                 write(SD, errmess, sizeof(errmess));
             }
         } else if (strcmp(token, "finish") == 0) {
             if (accountid >= 0 && accountid <= 19) {
                 finish(&accountid);
+                char message[] = "Session closed.\n";
+                write(SD, message, sizeof(message));
             } else {
-                char* errmess = "Error: you are not currently in a session.";
+                char* errmess = "Error: you are not currently in a session.\n";
                 write(SD, errmess, sizeof(errmess));
             }
         } else if (strcmp(token, "exit") == 0) {
@@ -91,6 +103,8 @@ void * client_session_thread(void * arg)
                 finish(&accountid);
             }
             end = True;
+            char message[] = "Thanks for using Jeff and Alex's bank. Have a nice day!\n";
+            write(SD, message, sizeof(message));
         }
 	}
     pthread_exit(0);
@@ -146,18 +160,20 @@ int start(char* acc_name) {
     return accountid;
 }
 
-void deposit(int accountid, char* amount_str) {
+float deposit(int accountid, char* amount_str) {
     float amount = atof(amount_str);
     pthread_mutex_lock(&account_locks[accountid]);
     bank[accountid].balance += amount;
     pthread_mutex_unlock(&account_locks[accountid]);
+    return amount;
 }
 
-void withdraw(int accountid, char* amount_str) {
+float withdraw(int accountid, char* amount_str) {
     float amount = atof(amount_str);
     pthread_mutex_lock(&account_locks[accountid]);
     bank[accountid].balance += amount;
     pthread_mutex_unlock(&account_locks[accountid]);
+    return amount;
 }
 
 float balance(int accountid) {
