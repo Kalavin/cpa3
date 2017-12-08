@@ -25,12 +25,17 @@ void * client_session_thread(void * arg)
     flag end = False;
     int accountid;
 
-	while ( read( SD, request, sizeof(request) ) > 0 && end == True )
+	while ( read( SD, request, sizeof(request) ) > 0 && end == False )
 	{
 		printf( "server receives input:  %s\n", request );
         token = strtok(request, delim);
         if (strcmp(token, "open") == 0) {
             token = strtok(NULL, delim);
+            if (accountid >= 0 && accountid <= 19) {
+                char errmess[] = "Error: you can not open an account while in a session.";
+                write(SD, errmess, sizeof(errmess));
+                continue;
+            }
             accountid = open(token); //distinguish accounts by index in bank array
             if (accountid == -1) { //too many accounts
                 char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
@@ -65,6 +70,27 @@ void * client_session_thread(void * arg)
                 char errmess[] = "Error: you are not currently in a session.";
                 write(SD, errmess, sizeof(errmess));
             }
+        } else if (strcmp(token, "balance") == 0) {
+            if (accountid >= 0 && accountid <= 19) {
+                float curr_bal = balance(accountid);
+                char* message = "";
+                write(SD, message, sprintf(message, "Your current balance: %f\n", curr_bal));
+            } else {
+                char errmess[] = "Error: you are not currently in a session.";
+                write(SD, errmess, sizeof(errmess));
+            }
+        } else if (strcmp(token, "finish") == 0) {
+            if (accountid >= 0 && accountid <= 19) {
+                finish(&accountid);
+            } else {
+                char* errmess = "Error: you are not currently in a session.";
+                write(SD, errmess, sizeof(errmess));
+            }
+        } else if (strcmp(token, "exit") == 0) {
+            if (accountid >= 0 && accountid <= 19) {
+                finish(&accountid);
+            }
+            end = True;
         }
 	}
     pthread_exit(0);
@@ -132,6 +158,17 @@ void withdraw(int accountid, char* amount_str) {
     pthread_mutex_lock(&account_locks[accountid]);
     bank[accountid].balance += amount;
     pthread_mutex_unlock(&account_locks[accountid]);
+}
+
+float balance(int accountid) {
+    return bank[accountid].balance;
+}
+
+void finish(int* accountid) {
+    pthread_mutex_lock(&account_locks[*accountid]);
+    bank[*accountid].in_session = False;
+    pthread_mutex_unlock(&account_locks[*accountid]);    
+    *accountid = -1;
 }
 
 int

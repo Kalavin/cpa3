@@ -21,6 +21,8 @@ int open(char* acc_name); //returns int representing index in bank
 int start(char* acc_name); //returns int representing index in bank
 void deposit(int accountid, char* amount_str);
 void withdraw(int accountid, char* amount_str);
+float balance(int accountid);
+void finish(int* accountid);
 int claim_port(const char* port);
 int main(int argc, char** argv);
 
