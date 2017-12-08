@@ -53,6 +53,17 @@ void * client_session_thread(void * arg)
             token = strtok(NULL, delim);
             if (accountid >= 0 && accountid <= 19) {
                 deposit(accountid, token);
+            } else {
+                char errmess[] = "Error: you are not currently in a session.";
+                write(SD, errmess, sizeof(errmess));
+            }
+        } else if (strcmp(token, "withdraw") == 0) {
+            token = strtok(NULL, delim);
+            if (accountid >= 0 && accountid <= 19) {
+                withdraw(accountid, token);
+            } else {
+                char errmess[] = "Error: you are not currently in a session.";
+                write(SD, errmess, sizeof(errmess));
             }
         }
 	}
@@ -110,8 +121,14 @@ int start(char* acc_name) {
 }
 
 void deposit(int accountid, char* amount_str) {
-    char* ptr;
-    int amount = strtol(amount_str, &ptr, 10);
+    float amount = atof(amount_str);
+    pthread_mutex_lock(&account_locks[accountid]);
+    bank[accountid].balance += amount;
+    pthread_mutex_unlock(&account_locks[accountid]);
+}
+
+void withdraw(int accountid, char* amount_str) {
+    float amount = atof(amount_str);
     pthread_mutex_lock(&account_locks[accountid]);
     bank[accountid].balance += amount;
     pthread_mutex_unlock(&account_locks[accountid]);
