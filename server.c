@@ -23,7 +23,7 @@ void * client_session_thread(void * arg)
 	SD = *(int *)arg;
 	free (arg);
     flag end = False;
-    int account;
+    int accountid;
 
 	while ( read( SD, request, sizeof(request) ) > 0 && end == True )
 	{
@@ -31,11 +31,11 @@ void * client_session_thread(void * arg)
         token = strtok(request, delim);
         if (strcmp(token, "open") == 0) {
                 token = strtok(NULL, delim);
-                account = open(token); //distinguish accounts by index in bank array
-                if (account == -1) { //too many accounts
+                accountid = open(token); //distinguish accounts by index in bank array
+                if (accountid == -1) { //too many accounts
                         char errmess[] = "Error: not enough room in bank. \"exit\" to quit";
                         write(SD, errmess, sizeof(errmess));
-                } else if (account == -2) { //account name too long
+                } else if (accountid == -2) { //account name too long
                         char errmess[] = "Error: account name too long. Must be less than 100 characters.";
                         write(SD, errmess, sizeof(errmess));
                 }
@@ -47,21 +47,34 @@ void * client_session_thread(void * arg)
 
 //need to do mutex lock around bank here
 int open(char* acc_name) { //returns -1 for too many accounts, -2 for name too long
-        //bank lock should start here
+        pthread_mutex_lock(&bank_lock);
+
         if (strlen(acc_name) > 100) {
                 return -2;
         } else if (num_accounts >= 20) {
                 return -1;
         }
-        //account lock starts here
-        int account = num_accounts;
+        //check if an account with that name already exists
+        int i;
+        for (i = 0; i < num_accounts; i++) {
+            if (strcmp(bank[i].account_name, acc_name) == 0) {
+                return -3;
+            } 
+        }
+        pthread_mutex_lock(&account_locks[num_accounts]);
+
+        int accountid = num_accounts;
         num_accounts += 1;
-        //bank lock can end here
-        strcpy(bank[account].account_name, acc_name);
-        bank[account].balance = 0;
-        bank[account].in_session = True;
-        //account lock ends here
-        return account;
+
+        pthread_mutex_unlock(&bank_lock);
+
+        strcpy(bank[accountid].account_name, acc_name);
+        bank[accountid].balance = 0;
+        bank[accountid].in_session = True;
+
+        pthread_mutex_unlock(&account_locks[accountid]);
+
+        return accountid;
 }
 
 int
