@@ -49,6 +49,11 @@ void * client_session_thread(void * arg)
                 char errmess[] = "Error: no account with that name exists.";
                 write(SD, errmess, sizeof(errmess));
             }
+        } else if (strcmp(token, "deposit") == 0) {
+            token = strtok(NULL, delim);
+            if (accountid >= 0 && accountid <= 19) {
+                deposit(accountid, token);
+            }
         }
 	}
     pthread_exit(0);
@@ -102,6 +107,14 @@ int start(char* acc_name) {
     pthread_mutex_unlock(&bank_lock);
     pthread_mutex_unlock(&account_locks[i]);
     return accountid;
+}
+
+void deposit(int accountid, char* amount_str) {
+    char* ptr;
+    int amount = strtol(amount_str, &ptr, 10);
+    pthread_mutex_lock(&account_locks[accountid]);
+    bank[accountid].balance += amount;
+    pthread_mutex_unlock(&account_locks[accountid]);
 }
 
 int
