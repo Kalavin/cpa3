@@ -28,7 +28,7 @@ void* writing_messages(void* arg)
         if(strcmp(new_msg, "exit\n") == 0)
         {
         	strcat(dcmsg,"DISCONNECTED");
-        	write(sd,dcmsg,strlen(dcmsg));
+        	//write(sd,dcmsg,strlen(dcmsg));
             printf("Bank disconnected.\n");
             pthread_exit(0);
             return 0;
@@ -77,7 +77,6 @@ repeated_connect( const char * server, struct addrinfo * rp )
 		}
 		else
 		{
-            printf("after connection: %d\n", sd);
 			return sd;		// connect() succeeded
 		}
 	} while ( errno == ECONNREFUSED );
