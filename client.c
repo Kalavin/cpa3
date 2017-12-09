@@ -22,9 +22,9 @@ void* writing_messages(void* arg)
 		write( 1, prompt, sizeof(prompt));
 		read( 0, new_msg, sizeof(new_msg));
 		printf("here: %s",new_msg);
-		write(sd, new_msg, strlen(new_msg));
+		write(sd, new_msg, sizeof(new_msg));
 		printf("blah\n");
-        if(strcmp(new_msg, "exit") == 0)
+        if(strcmp(new_msg, "exit\n") == 0)
         {
         	strcat(dcmsg,"DISCONNECTED");
         	write(sd,dcmsg,strlen(dcmsg));
