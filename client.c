@@ -10,10 +10,11 @@
 
 char 	dcmsg[150];
 char    new_msg[2048];
-int 	sd;
 // Miniature client to exercise getaddrinfo(2).
 void* writing_messages(void* arg) 
 {
+	int sd;
+	sd = *(int *)arg;
     printf("in writing thread: %d\n", sd);
 	char	prompt[] = "How may we help you? >>";
 	//writing variables
@@ -41,6 +42,8 @@ void* writing_messages(void* arg)
 
 void* reading_messages(void* arg) 
 {
+	int sd;
+	sd = *(int *)arg;
 	//reading variable
 	char	got_message[50000];
     printf("in reading thread: %d\n", sd);
@@ -88,6 +91,7 @@ int
 main( int argc, char ** argv )
 {
 	int 			sd;
+	int *	SDptr;
 	char			message[256];
 	int				ignore;
 	struct addrinfo		addrinfo;
@@ -142,14 +146,17 @@ main( int argc, char ** argv )
 		{
 			printf( "Welcome to JC & AW Bank on %s\n", argv[1] );
 			//Creating writing and reading threads
+		    printf("in bank thread: %d\n", sd);
 			pthread_t write;
 			pthread_t read;
-			if (pthread_create(&write, NULL, writing_messages, 0) != 0)
+			SDptr = (int *)malloc(sizeof(int));
+			*SDptr = sd;
+			if (pthread_create(&write, NULL, writing_messages, SDptr) != 0)
 			{
 				printf("\x1b[1;31mProblem creating thread\x1b[0m\n");
 			}
 			pthread_detach(write);
-			if (pthread_create(&read, NULL, reading_messages, 0) != 0)
+			if (pthread_create(&read, NULL, reading_messages, SDptr) != 0)
 			{
 				printf("\x1b[1;31mProblem creating thread\x1b[0m\n");
 			}
