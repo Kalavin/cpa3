@@ -15,7 +15,6 @@ void* writing_messages(void* arg)
 {
 	int sd;
 	sd = *(int *)arg;
-    printf("in writing thread: %d\n", sd);
 	char	prompt[] = "How may we help you? >>";
 	//writing variables
 	//Gets your message and sends it to everyone, then zeros out message.
@@ -23,9 +22,14 @@ void* writing_messages(void* arg)
 	{
 		write( 1, prompt, sizeof(prompt));
 		read( 0, new_msg, sizeof(new_msg));
-		printf("here: %s",new_msg);
-		write(sd, new_msg, sizeof(new_msg));
-		printf("blah\n");
+        if (write(sd, new_msg, sizeof(new_msg)) != sizeof(new_msg)) {
+            char errmess[] = "Error: Message did not write to server.\n";
+            write(1, errmess, sizeof(errmess));
+        } else {
+            char mess[] = "Message sent successfully\n";
+            write(1, mess, sizeof(mess));
+        }
+		//write(sd, new_msg, sizeof(new_msg));
         if(strcmp(new_msg, "exit\n") == 0)
         {
         	strcat(dcmsg,"DISCONNECTED");
@@ -36,7 +40,6 @@ void* writing_messages(void* arg)
         }
 		strcpy(new_msg, "");
 		bzero(new_msg, sizeof(new_msg));
-		fflush(stdin);
 	}
 }
 
@@ -146,7 +149,6 @@ main( int argc, char ** argv )
 		{
 			printf( "Welcome to JC & AW Bank on %s\n", argv[1] );
 			//Creating writing and reading threads
-		    printf("in bank thread: %d\n", sd);
 			pthread_t write;
 			pthread_t read;
 			SDptr = (int *)malloc(sizeof(int));

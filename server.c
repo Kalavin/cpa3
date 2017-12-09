@@ -28,13 +28,10 @@ void * client_session_thread(void * arg)
     char* token;
 
 	SD = *(int *)arg;
-    printf("client_session_thread: %d\n", SD);
 	free (arg);
 	pthread_detach(pthread_self());
 
-    //flag end = False;
-    int accountid;
-    printf("first\n");
+    int accountid = -1;
 	while ( read( SD, request, 128 ) > 0)
 	{
 		printf( "server receives input:  %s\n", request );
@@ -208,7 +205,6 @@ claim_port( const char * port )
 	int			sd;
 	char			message[256];
 	int			on = 1;
-    printf("second\n");
 	addrinfo.ai_flags = AI_PASSIVE;		// for bind()
 	addrinfo.ai_family = AF_INET;		// IPv4 only
 	addrinfo.ai_socktype = SOCK_STREAM;	// Want TCP/IP
@@ -268,7 +264,6 @@ main( int argc, char ** argv )
 	int * FDptr;
 	int			ignore;
 	pthread_t 	tid;
-    printf("third\n");
 	if ( argc < 2 )
 	{
 		fprintf( stderr, "\x1b[1;31mMust specify port number on command line.  File %s line %d.\x1b[0m\n", __FILE__, __LINE__ );
@@ -298,7 +293,6 @@ main( int argc, char ** argv )
 			}
 			else
 			{
-			    printf("fifth: %d\n", fd);
 				sleep(1);
 				continue;
 			}
