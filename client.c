@@ -41,8 +41,6 @@ void* writing_messages(void* arg)
 void* reading_messages(void* arg) 
 {
 	//reading variable
-	int sd;
-	sd = *(int *)arg;
 	char	got_message[50000];
 
 	//constantly reading in messages
@@ -89,7 +87,7 @@ main( int argc, char ** argv )
 {
 	int 			sd;
 	char			message[256];
-	int			ignore;
+	int				ignore;
 	struct addrinfo		addrinfo;
 	struct addrinfo *	result;
 	struct addrinfo *	rp;
@@ -110,7 +108,7 @@ main( int argc, char ** argv )
 	}
 	else if ( sscanf( argv[2], "%d", &ignore ) == 0 )
 	{
-		fprintf( stderr, "\x1b[1;31mMust specify port numbe as integerr on command line.  File %s line %d.\x1b[0m\n", __FILE__, __LINE__ );
+		fprintf( stderr, "\x1b[1;31mMust specify port number as integerr on command line.  File %s line %d.\x1b[0m\n", __FILE__, __LINE__ );
 		exit( 1 );
 	}
 	else if ( getaddrinfo( argv[1], argv[2], &addrinfo, &result ) != 0 )
