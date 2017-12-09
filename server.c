@@ -7,7 +7,14 @@
 #include	<sys/socket.h>
 #include	<netdb.h>
 #include	<pthread.h>
+#include	<malloc.h>
+#include	<sys/ioctl.h>
+#include	<netinet/in.h>
+#include	<sys/types.h>
+#include 	<sys/stat.h>
+#include 	<netdb.h>
 #include "server.h"
+
 
 /*I created the thread at the end of the program, which is the client_session thread right below.
   The code is going to need to be tweaked because we need to create an array of structs to store
@@ -22,9 +29,11 @@ void * client_session_thread(void * arg)
 
 	SD = *(int *)arg;
 	free (arg);
+	pthread_detach(pthread_self());
+
     flag end = False;
     int accountid;
-
+    printf("first\n");
 	while ( read( SD, request, sizeof(request) ) > 0 && end == False )
 	{
 		printf( "server receives input:  %s\n", request );
@@ -105,7 +114,10 @@ void * client_session_thread(void * arg)
             end = True;
             char message[] = "Thanks for using Jeff and Alex's bank. Have a nice day!\n";
             write(SD, message, sizeof(message));
-        }
+        } else {
+            char message[] = "You have entered an incorrect command! Please try again using open, start, deposit, withdrawal, finish or exit.\n";        	
+            write(SD, message, sizeof(message));
+        	}
 	}
     pthread_exit(0);
 }
@@ -195,7 +207,7 @@ claim_port( const char * port )
 	int			sd;
 	char			message[256];
 	int			on = 1;
-
+    printf("second\n");
 	addrinfo.ai_flags = AI_PASSIVE;		// for bind()
 	addrinfo.ai_family = AF_INET;		// IPv4 only
 	addrinfo.ai_socktype = SOCK_STREAM;	// Want TCP/IP
@@ -252,13 +264,10 @@ main( int argc, char ** argv )
 	socklen_t	ic;
 	int			fd;
 	struct sockaddr_in      senderAddr;
-	char		temp;
-	int			i;
 	int * FDptr;
-	int			limit, size;
 	int			ignore;
 	pthread_t 	tid;
-
+    printf("third\n");
 	if ( argc < 2 )
 	{
 		fprintf( stderr, "\x1b[1;31mMust specify port number on command line.  File %s line %d.\x1b[0m\n", __FILE__, __LINE__ );
@@ -288,6 +297,7 @@ main( int argc, char ** argv )
 			}
 			else
 			{
+			    printf("fifth\n");
 				sleep(1);
 				continue;
 			}
