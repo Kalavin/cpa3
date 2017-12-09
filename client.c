@@ -20,6 +20,7 @@ void* writing_messages(void* arg)
 	//Gets your message and sends it to everyone, then zeros out message.
 	while (1)
 	{
+        sleep(2);
 		write( 1, prompt, sizeof(prompt));
 		read( 0, new_msg, sizeof(new_msg));
         new_msg[strlen(new_msg)] = '\0';
