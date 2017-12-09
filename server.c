@@ -23,7 +23,7 @@
 void * client_session_thread(void * arg)
 {
 	int 	SD;
-	char* 	request = "";
+	char 	request[128] = "";
     char* delim = " \0\n";
     char* token;
 
@@ -32,10 +32,10 @@ void * client_session_thread(void * arg)
 	free (arg);
 	pthread_detach(pthread_self());
 
-    flag end = False;
+    //flag end = False;
     int accountid;
     printf("first\n");
-	while ( read( SD, request, sizeof(request) ) > 0 && end == False )
+	while ( read( SD, request, 128 ) > 0)
 	{
 		printf( "server receives input:  %s\n", request );
         token = strtok(request, delim);
@@ -112,12 +112,12 @@ void * client_session_thread(void * arg)
             if (accountid >= 0 && accountid <= 19) {
                 finish(&accountid);
             }
-            end = True;
             char message[] = "Thanks for using Jeff and Alex's bank. Have a nice day!\n";
             write(SD, message, sizeof(message));
         } else {
-            char message[] = "You have entered an incorrect command! Please try again using open, start, deposit, withdrawal, finish or exit.\n";        	
+            char message[] = "You have entered an incorrect command! Please try again using open, start, deposit, withdraw, finish or exit.\n";        	
             write(SD, message, sizeof(message));
+            break;
         	}
 	}
     pthread_exit(0);
