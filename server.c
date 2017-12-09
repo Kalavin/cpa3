@@ -30,11 +30,11 @@ void * client_session_thread(void * arg)
 	SD = *(int *)arg;
 	free (arg);
 	pthread_detach(pthread_self());
-
+    int size = 0;
     int accountid = -1;
-	while ( read( SD, request, 128 ) > 0)
+	while ( (size = read( SD, request, sizeof(request) )) > 0)
 	{
-		printf( "server receives input:  %s\n", request );
+        printf("%d\n", size);
         token = strtok(request, delim);
         if (strcmp(token, "open") == 0) {
             token = strtok(NULL, delim);
