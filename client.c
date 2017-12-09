@@ -14,6 +14,7 @@ int 	sd;
 // Miniature client to exercise getaddrinfo(2).
 void* writing_messages(void* arg) 
 {
+    printf("in writing thread: %d\n", sd);
 	char	prompt[] = "How may we help you? >>";
 	//writing variables
 	//Gets your message and sends it to everyone, then zeros out message.
@@ -42,7 +43,7 @@ void* reading_messages(void* arg)
 {
 	//reading variable
 	char	got_message[50000];
-
+    printf("in reading thread: %d\n", sd);
 	//constantly reading in messages
 	while(1)
 	{
@@ -76,6 +77,7 @@ repeated_connect( const char * server, struct addrinfo * rp )
 		}
 		else
 		{
+            printf("after connection: %d\n", sd);
 			return sd;		// connect() succeeded
 		}
 	} while ( errno == ECONNREFUSED );

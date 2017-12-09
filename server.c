@@ -28,6 +28,7 @@ void * client_session_thread(void * arg)
     char* token;
 
 	SD = *(int *)arg;
+    printf("client_session_thread: %d\n", SD);
 	free (arg);
 	pthread_detach(pthread_self());
 
@@ -297,7 +298,7 @@ main( int argc, char ** argv )
 			}
 			else
 			{
-			    printf("fifth\n");
+			    printf("fifth: %d\n", fd);
 				sleep(1);
 				continue;
 			}
