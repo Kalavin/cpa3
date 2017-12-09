@@ -70,6 +70,10 @@ void * client_session_thread(void * arg)
             token = strtok(NULL, delim);
             if (accountid >= 0 && accountid <= 19) {
                 float amount = deposit(accountid, token);
+                if (amount == -1) {
+                    char errmess[] = "Sorry, depositing that much would result in a negative balance.";
+                    write(SD, errmess, sizeof(errmess));
+                }
                 char message[100] = "";
                 sprintf(message, ">>%f<< deposited successfully.", amount);
                 write(SD, message, sizeof(message));
@@ -180,6 +184,9 @@ int start(char* acc_name) {
 float deposit(int accountid, char* amount_str) {
     float amount = atof(amount_str);
     pthread_mutex_lock(&account_locks[accountid]);
+    if (amount + bank[accountid].balance < 0) {
+        return -1;
+    }
     bank[accountid].balance += amount;
     pthread_mutex_unlock(&account_locks[accountid]);
     return amount;
