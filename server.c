@@ -70,7 +70,7 @@ void * client_session_thread(void * arg)
             token = strtok(NULL, delim);
             if (accountid >= 0 && accountid <= 19) {
                 float amount = deposit(accountid, token);
-                char message[40] = "";
+                char message[100] = "";
                 sprintf(message, ">>%f<< deposited successfully.", amount);
                 write(SD, message, sizeof(message));
             } else {
@@ -86,7 +86,7 @@ void * client_session_thread(void * arg)
                     write(SD, errmess, sizeof(errmess));
                     continue;
                 }
-                char message[40] = "";
+                char message[100] = "";
                 sprintf(message, ">>%f<< withdrawn successfully.", amount);
                 write(SD, message, sizeof(message));
             } else {
@@ -97,7 +97,7 @@ void * client_session_thread(void * arg)
         } else if (strncmp(token, "balance", strlen("balance")) == 0) {
             if (accountid >= 0 && accountid <= 19) {
                 float curr_bal = balance(accountid);
-                char message[40] = "";
+                char message[100] = "";
                 sprintf(message, "Your current balance is >>%f<<", curr_bal);
                 write(SD, message, sizeof(message));
             } else {
@@ -189,6 +189,7 @@ float withdraw(int accountid, char* amount_str) {
     float amount = atof(amount_str);
     pthread_mutex_lock(&account_locks[accountid]);
     if ((bank[accountid].balance - amount) < 0) {
+        pthread_mutex_unlock(&account_locks[accountid]);
         return -1;
     }
     bank[accountid].balance -= amount;
