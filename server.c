@@ -112,7 +112,7 @@ void * client_session_thread(void * arg)
             char message[] = "Thanks for using Jeff and Alex's bank. Have a nice day!\n";
             write(SD, message, sizeof(message));
         } else {
-            char message[] = "You have entered an incorrect command! Please try again using open, start, deposit, withdraw, finish or exit.\n";        	
+            char message[] = "You have entered an incorrect command! Please try again using open, start, deposit, withdraw, balance, finish or exit.\n";        	
             write(SD, message, sizeof(message));
             break;
         	}
