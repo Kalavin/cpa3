@@ -15,21 +15,15 @@ void* writing_messages(void* arg)
 {
 	int sd;
 	sd = *(int *)arg;
-	char	prompt[] = "How may we help you? >>";
+	char	prompt[128] = "How may we help you? >>";
 	//writing variables
 	//Gets your message and sends it to everyone, then zeros out message.
 	while (1)
 	{
 		write( 1, prompt, sizeof(prompt));
 		read( 0, new_msg, sizeof(new_msg));
-        if (write(sd, new_msg, sizeof(new_msg)) != sizeof(new_msg)) {
-            char errmess[] = "Error: Message did not write to server.\n";
-            write(1, errmess, sizeof(errmess));
-        } else {
-            char mess[] = "Message sent successfully\n";
-            write(1, mess, sizeof(mess));
-        }
-		//write(sd, new_msg, sizeof(new_msg));
+        new_msg[strlen(new_msg)] = '\0';
+		write(sd, new_msg, strlen(new_msg) + 1);
         if(strcmp(new_msg, "exit\n") == 0)
         {
         	strcat(dcmsg,"DISCONNECTED");
@@ -49,7 +43,6 @@ void* reading_messages(void* arg)
 	sd = *(int *)arg;
 	//reading variable
 	char	got_message[50000];
-    printf("in reading thread: %d\n", sd);
 	//constantly reading in messages
 	while(1)
 	{
