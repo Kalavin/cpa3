@@ -80,6 +80,11 @@ void * client_session_thread(void * arg)
                 if (amount == -1) {
                     char errmess[] = "Sorry, depositing that much would result in a negative balance.";
                     write(SD, errmess, sizeof(errmess));
+                    continue;
+                } else if (amount == -2) {
+                    char errmess[] = "Error: You can't deposit a negative amount.";
+                    write(SD, errmess, sizeof(errmess));
+                    continue;
                 }
                 char message[100] = "";
                 sprintf(message, ">>%.2f<< deposited successfully.", amount);
@@ -94,6 +99,10 @@ void * client_session_thread(void * arg)
                 float amount = withdraw(accountid, token);
                 if (amount == -1) { 
                     char errmess[] = "Error: You can't withdraw more than you have.";
+                    write(SD, errmess, sizeof(errmess));
+                    continue;
+                } else if (amount == -2) {
+                    char errmess[] = "Error: You can't withdraw a negative amount.";
                     write(SD, errmess, sizeof(errmess));
                     continue;
                 }
@@ -194,6 +203,9 @@ int start(char* acc_name) {
 
 float deposit(int accountid, char* amount_str) {
     float amount = atof(amount_str);
+    if (amount < 0) {
+        return -2;
+    }
     pthread_mutex_lock(&account_locks[accountid]);
     if (amount + bank[accountid].balance < 0) {
         return -1;
@@ -205,6 +217,9 @@ float deposit(int accountid, char* amount_str) {
 
 float withdraw(int accountid, char* amount_str) {
     float amount = atof(amount_str);
+    if (amount < 0) {
+        return -2;
+    }   
     pthread_mutex_lock(&account_locks[accountid]);
     if ((bank[accountid].balance - amount) < 0) {
         pthread_mutex_unlock(&account_locks[accountid]);
