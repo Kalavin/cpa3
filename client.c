@@ -16,12 +16,11 @@ void* writing_messages(void* arg)
 	int sd;
 	sd = *(int *)arg;
 	char	prompt[128] = "How may we help you? >>";
+	write( 1, prompt, sizeof(prompt));
 	//writing variables
 	//Gets your message and sends it to everyone, then zeros out message.
 	while (1)
 	{
-        sleep(2);
-		write( 1, prompt, sizeof(prompt));
 		read( 0, new_msg, sizeof(new_msg));
         new_msg[strlen(new_msg)] = '\0';
 		write(sd, new_msg, strlen(new_msg) + 1);
@@ -29,7 +28,7 @@ void* writing_messages(void* arg)
         {
         	strcat(dcmsg,"DISCONNECTED");
         	//write(sd,dcmsg,strlen(dcmsg));
-            printf("Bank disconnected.\n");
+            printf("Banking session ended.\n");
             pthread_exit(0);
             return 0;
         }
@@ -42,13 +41,14 @@ void* reading_messages(void* arg)
 {
 	int sd;
 	sd = *(int *)arg;
+	char	prompt[128] = "How may we help you? >>";
 	//reading variable
 	char	got_message[50000];
 	//constantly reading in messages
 	while(1)
 	{
-		//shutting down reading function if @exit is typed
-        if(strcmp(new_msg, "exit") == 0)
+		//shutting down reading function if exit is typed
+        if(strcmp(new_msg, "exit\n") == 0)
         {
         	pthread_exit(0);
             return 0;
@@ -56,6 +56,8 @@ void* reading_messages(void* arg)
 		read(sd, got_message, sizeof(got_message));
 		printf("%s\n", got_message);
 		bzero(got_message, sizeof(got_message));
+		sleep(1);
+		write( 1, prompt, sizeof(prompt));
 	}
 }
 
