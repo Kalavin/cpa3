@@ -152,15 +152,18 @@ int open(char* acc_name) { //returns -1 for too many accounts, -2 for name too l
     pthread_mutex_lock(&bank_lock);
 
     if (strlen(acc_name) > 100) {
+        pthread_mutex_unlock(&bank_lock);
         return -2;
     } else if (num_accounts >= 20) {
+        pthread_mutex_unlock(&bank_lock);
         return -1;
     }
     //check if an account with that name already exists
     int i;
     for (i = 0; i < num_accounts; i++) {
         if (strcmp(bank[i].account_name, acc_name) == 0) {
-           return -3;
+            pthread_mutex_unlock(&bank_lock);
+            return -3;
         } 
     }
     pthread_mutex_lock(&account_locks[num_accounts]);
@@ -209,6 +212,7 @@ float deposit(int accountid, char* amount_str) {
     }
     pthread_mutex_lock(&account_locks[accountid]);
     if (amount + bank[accountid].balance < 0) {
+        pthread_mutex_unlock(&account_locks[accountid]);
         return -1;
     }
     bank[accountid].balance += amount;
