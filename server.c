@@ -66,6 +66,9 @@ void * client_session_thread(void * arg)
             if (accountid == -1) {
                 char errmess[] = "Error: no account with that name exists.";
                 write(SD, errmess, sizeof(errmess));
+            } else if (accountid == -2) {
+                char errmess[] = "Error: That account is currently open. Try again later.";
+                write(SD, errmess, sizeof(errmess));
             } else {
                 char message[] = "Welcome back! Your session has begun successfully.";
                 write(SD, message, sizeof(message));
@@ -174,6 +177,10 @@ int start(char* acc_name) {
     for (i = 0; i < num_accounts; i++) {
         pthread_mutex_lock(&account_locks[i]);
         if (strcmp(bank[i].account_name, acc_name) == 0) {
+            if (bank[i].in_session == True) {
+                accountid = -2;
+                break;
+            }
             accountid = i;
             bank[accountid].in_session = True;
             break;
