@@ -33,6 +33,7 @@ void * client_session_thread(void * arg)
     int accountid = -1;
 	while ( (size = read( SD, request, sizeof(request) )) > 0)
 	{
+        printf("socket %d says >>>%s", SD, request);
         char* token = strtok(request, delim);
         if (strcmp(token, "open") == 0) {
             token = strtok(NULL, delim);
