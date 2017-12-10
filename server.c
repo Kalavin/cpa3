@@ -57,6 +57,11 @@ void * client_session_thread(void * arg)
             }
         } else if (strcmp(token, "start") == 0) {
             token = strtok(NULL, delim);
+            if (accountid >= 0 && accountid <= 19) {
+                char errmess[] = "Error: You're already in a session.";
+                write(SD, errmess, sizeof(errmess));
+                continue;
+            }
             accountid = start(token);
             if (accountid == -1) {
                 char errmess[] = "Error: no account with that name exists.";
