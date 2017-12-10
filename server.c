@@ -75,7 +75,7 @@ void * client_session_thread(void * arg)
                     write(SD, errmess, sizeof(errmess));
                 }
                 char message[100] = "";
-                sprintf(message, ">>%f<< deposited successfully.", amount);
+                sprintf(message, ">>%.2f<< deposited successfully.", amount);
                 write(SD, message, sizeof(message));
             } else {
                 char errmess[] = "Error: you are not currently in a session.";
@@ -91,7 +91,7 @@ void * client_session_thread(void * arg)
                     continue;
                 }
                 char message[100] = "";
-                sprintf(message, ">>%f<< withdrawn successfully.", amount);
+                sprintf(message, ">>%.2f<< withdrawn successfully.", amount);
                 write(SD, message, sizeof(message));
             } else {
                 char errmess[] = "Error: you are not currently in a session.";
@@ -102,7 +102,7 @@ void * client_session_thread(void * arg)
             if (accountid >= 0 && accountid <= 19) {
                 float curr_bal = balance(accountid);
                 char message[100] = "";
-                sprintf(message, "Your current balance is >>%f<<", curr_bal);
+                sprintf(message, "Your current balance is >>%.2f<<", curr_bal);
                 write(SD, message, sizeof(message));
             } else {
                 char errmess[] = "Error: you are not currently in a session.";
