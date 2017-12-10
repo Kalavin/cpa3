@@ -131,7 +131,7 @@ void * client_session_thread(void * arg)
                 char message[] = "Session closed.";
                 write(SD, message, sizeof(message));
             } else {
-                char* errmess = "Error: you are not currently in a session.";
+                char errmess[] = "Error: you are not currently in a session.";
                 write(SD, errmess, sizeof(errmess));
             }
         } else if (strncmp(token, "exit", strlen("exit")) == 0) {
