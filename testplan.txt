@@ -1,0 +1,68 @@
+#cpa3
+#Jeff and Alex
+
+SETUP:
+Step 1: Connect to clamshell in multiple windows. (One for the server and 1+ for the client(s))
+Step 2: Type "make" in each window to compile the server and client.
+Step 3: Designate a window for the server and type "./server 5858"
+Step 3(cont): 5858 represents the port number. You can choose any port number you'd like over 3000 if you'd like.
+Step 4: In each client window you have open, type "./client clamshell.rutgers.edu 5858"
+Step 4(cont): Once again any port number over 3000 works but make sure it matches the one used for the server.
+Step 5: Start using commands!
+
+TESTCASE EXAMPLE(instructions for client window after you use the SETUP instructions above):
+
+Upon entry of the client you will see:
+
+clamshell:~> ./client clamshell.rutgers.edu 9991
+SUCCESS : Connected to server clamshell.rutgers.edu
+Welcome to JC & AW Bank on clamshell.rutgers.edu
+How may we help you? >>
+
+Now type in client:
+$open vibha
+
+You should see:
+
+How may we help you? >>open vibha
+Account successfully opened!
+How may we help you? >>
+
+Now type in client:
+$deposit 315.22
+
+You should see:
+
+How may we help you? >>deposit 315.22
+Error: you are not currently in a session.
+
+Now type in:
+$start vibha
+
+You should see:
+
+How may we help you? >>start vibha
+Welcome back! Your session has begun successfully.
+
+Now type in client:
+$deposit 315.22
+
+You should see:
+
+How may we help you? >>deposit 315.22
+>>315.22<< deposited successfully.
+
+YOU SHOULD HAVE THE HANG OF IT BY NOW. BELOW ARE A FEW MORE BACK AND FORTHS CONTINUED FROM THE TEST CODE ABOVE:
+
+
+How may we help you? >>withdraw 5
+>>5.00<< withdrawn successfully.
+How may we help you? >>balance alex
+Your current balance is >>310.22<<
+How may we help you? >>finish
+Session closed.
+How may we help you? >>exit
+Banking session ended.
+Thanks for using Jeff and Alex's bank. Have a nice day!
+clamshell:~>
+
